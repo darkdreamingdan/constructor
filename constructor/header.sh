@@ -289,12 +289,14 @@ rm -rf $PREFIX/pkgs
 
 PIP="$PREFIX/bin/pip"
 if [ -f $PIP ]; then
+    cd $PREFIX/pip
     REQUIREMENTS=$PREFIX/pip/requirements.txt
     if [ -f $REQUIREMENTS ]; then
         echo "installing pip packages..."
         $PYTHON  -E -s $PIP install --disable-pip-version-check \
             --no-index --find-links $PREFIX/pip -r $REQUIREMENTS
     fi
+    cd $PREFIX
 fi
 #if not keep_pkgs
 rm -rf $PREFIX/pip

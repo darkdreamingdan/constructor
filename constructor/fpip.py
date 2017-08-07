@@ -32,6 +32,18 @@ def fetch(info, verbose=True):
             sys.exit("Error clearing pip cache directory")
 
     specs = info['pip']
+
+
+    # For local pip packages and absolute URLs, we take the basename
+    offline_specs = []
+    for spec in specs:
+        # Take the first argument in pip install command, and shape it so that you have a local path
+        # e.g.    "pip download https://asdf.com/somepackage.tar.gz --no-cache"
+        # goes to "pip install somepackage.tar.gz --no-cache"
+        spec_params = spec.split()
+        spec_params[0] = spec_params[0].rpartition('/')[-1]
+        offline_specs.append(' '.join(spec_params))
+
     if verbose:
         print("pip specs: %r" % specs)
 
@@ -50,6 +62,11 @@ def fetch(info, verbose=True):
         print("Running pip module with arguments: ", pip_cmd)
     if pip.main(pip_cmd) != 0:
         sys.exit("pip returned an error")
+
+    # Modified version of requirements with filenames in place of URLs
+    with open(requirements_path, "w") as requirements:
+        requirements.write('\n'.join(offline_specs))
+        requirements.close()
 
 
 def main(info, verbose=True):
